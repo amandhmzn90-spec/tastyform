@@ -200,7 +200,7 @@ input[type="date"]::-webkit-calendar-picker-indicator { opacity: 0.35; cursor: p
     <button class="toggle-btn" id="btn-ambil" onclick="setDelivery('ambil')">Ambil sendiri</button>
   </div>
   <div class="addr-wrap show" id="addr-wrap">
-    <div class="field"><label>Alamat lengkap pengiriman</label><textarea id="alamat" placeholder="Jl. ..., RT/RW, Kelurahan, Kecamatan, Kota"></textarea></div>
+    <div class="field"><label>Alamat lengkap pengiriman</label><textarea id="alamat" onblur="fetchOngkir()" placeholder="Jl. ..., RT/RW, Kelurahan, Kecamatan, Kota"></textarea></div>
   </div>
   <div class="field" style="margin-top:10px;"><label>Tanggal pengiriman / pengambilan</label><input type="date" id="tanggal"></div>
 
@@ -252,7 +252,7 @@ const state = {
 };
 catalog.filter(p=>p.type==='size'||p.type==='multi').forEach(p=>{ state[p.id]={}; p.opts.forEach((_,i)=>{state[p.id][i]=0;}); });
 catalog.filter(p=>p.type==='qty').forEach(p=>{state[p.id]=0;});
-let deliveryMode='kirim', grandTotal=0;
+let deliveryMode='kirim', grandTotal=0, ongkir = 0;
 
 function fmt(n){return 'Rp '+n.toLocaleString('id-ID');}
 
@@ -458,7 +458,9 @@ function bolenItemData(){
 }
 
 function updateSummary(){
-  let items=[]; grandTotal=0;
+  let items=[]; 
+  grandTotal=0;
+
   const bi=bolenItemData();
   if(bi){items.push(bi);grandTotal+=bi.price;}
   const bb=document.getElementById('badge-bolen');
@@ -466,20 +468,88 @@ function updateSummary(){
 
   catalog.filter(p=>p.type==='qty').forEach(p=>{
     const q=state[p.id];
-    if(q>0){items.push({label:`${p.name} ×${q}`,price:p.price*q});grandTotal+=p.price*q;}
-    const b=document.getElementById('badge-'+p.id);if(b)b.classList.toggle('show',q>0);
-  });
-  catalog.filter(p=>p.type==='size'||p.type==='multi').forEach(p=>{
-    let has=false;
-    p.opts.forEach((o,i)=>{const q=state[p.id][i];if(q>0){items.push({label:`${p.name} — ${o.label} ×${q}`,price:o.price*q});grandTotal+=o.price*q;has=true;}});
-    const b=document.getElementById('badge-'+p.id);if(b)b.classList.toggle('show',has);
+    if(q>0){
+      items.push({label:`${p.name} ×${q}`,price:p.price*q});
+      grandTotal+=p.price*q;
+    }
+    const b=document.getElementById('badge-'+p.id);
+    if(b)b.classList.toggle('show',q>0);
   });
 
+  catalog.filter(p=>p.type==='size'||p.type==='multi').forEach(p=>{
+    let has=false;
+    p.opts.forEach((o,i)=>{
+      const q=state[p.id][i];
+      if(q>0){
+        items.push({
+          label:`${p.name} — ${o.label} ×${q}`,
+          price:o.price*q
+        });
+        grandTotal+=o.price*q;
+        has=true;
+      }
+    });
+    const b=document.getElementById('badge-'+p.id);
+    if(b)b.classList.toggle('show',has);
+  });
+
+  // 🔥 TAMBAH ONGKIR DI SINI (SEBELUM RENDER)
+  if (ongkir > 0) {
+    items.push({
+      label: "Ongkir",
+      price: ongkir
+    });
+    grandTotal += ongkir;
+  }
+
   const box=document.getElementById('summary');
-  if(items.length===0){box.classList.remove('show');return;}
+
+  if(items.length===0){
+    box.classList.remove('show');
+    return;
+  }
+
   box.classList.add('show');
-  document.getElementById('sum-items').innerHTML=items.map(it=>`<div class="sum-row"><span>${it.label}</span><span>${fmt(it.price)}</span></div>`).join('');
-  document.getElementById('sum-total').textContent=fmt(grandTotal);
+
+  // 🔥 BARU RENDER
+  document.getElementById('sum-items').innerHTML =
+    items.map(it=>`
+      <div class="sum-row">
+        <span>${it.label}</span>
+        <span>${fmt(it.price)}</span>
+      </div>
+    `).join('');
+
+  document.getElementById('sum-total').textContent = fmt(grandTotal);
+}
+
+async function fetchOngkir() {
+  if (deliveryMode !== 'kirim') {
+    ongkir = 0;
+    updateSummary();
+    return;
+  }
+
+  const alamat = document.getElementById('alamat').value.trim();
+  if (!alamat) return;
+
+  try {
+    const res = await fetch('http://localhost:5000/ongkir', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ alamat })
+    });
+
+    const data = await res.json();
+
+    if (data.ongkir) {
+      ongkir = data.ongkir;
+      updateSummary();
+    }
+
+  } catch (err) {
+    console.log("Error ongkir:", err);
+  }
 }
 
 function buildPesanan(){
@@ -542,6 +612,9 @@ async function handleSubmit(){
 
     🛍️ Pesanan:
     ${pesanan}
+
+    💰 Ongkir:
+    ${fmt(ongkir)}
 
     💰 Total:
     ${fmt(grandTotal)}
