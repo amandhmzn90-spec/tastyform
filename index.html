@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Form Pesanan — Tasty Yummy Bakery</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Playfair+Display:wght@600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --pink:        #C2185B;
+  --pink-light:  #FCE4EC;
+  --pink-mid:    #F8BBD0;
+  --pink-dark:   #880E4F;
+  --bg:          #FFF5F8;
+  --surface:     #FFFFFF;
+  --border:      #F0D6DF;
+  --text:        #3D2030;
+  --text-soft:   #9A7080;
+  --text-hint:   #C4A0AC;
+  --green-bg:    #E8F5E9;
+  --green-text:  #2E7D32;
+  --yellow-bg:   #FFF8E1;
+  --yellow-text: #E65100;
+  --r-sm:  8px;
+  --r-md:  12px;
+  --r-lg:  18px;
+  --r-xl:  24px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'DM Sans', -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+.wrap { max-width: 460px; margin: 0 auto; padding: 2rem 1.25rem 5rem; }
+
+.header {
+  text-align: center; margin-bottom: 2rem;
+  padding: 2rem 1.5rem; background: var(--surface);
+  border-radius: var(--r-xl); border: 1px solid var(--border);
+}
+.logo { font-family: 'Playfair Display', Georgia, serif; font-size: 28px; color: var(--pink); line-height: 1.2; }
+.tagline { font-size: 13px; color: var(--text-hint); margin-top: 6px; font-weight: 400; }
+
+.sec-label {
+  font-size: 10px; font-weight: 600; color: var(--pink);
+  letter-spacing: 0.12em; text-transform: uppercase; margin: 1.75rem 0 10px;
+}
+.field { margin-bottom: 12px; }
+.field label { display: block; font-size: 13px; color: var(--text-soft); margin-bottom: 6px; font-weight: 500; }
+.field input, .field textarea {
+  width: 100%; padding: 12px 14px;
+  border: 1px solid var(--border); border-radius: var(--r-md);
+  font-size: 14px; font-family: 'DM Sans', sans-serif;
+  background: var(--surface); color: var(--text);
+  outline: none; transition: border-color 0.2s, box-shadow 0.2s;
+  -webkit-appearance: none;
+}
+.field input:focus, .field textarea:focus {
+  border-color: var(--pink);
+  box-shadow: 0 0 0 3px rgba(194,24,91,0.08);
+}
+.field textarea { resize: vertical; min-height: 80px; line-height: 1.5; }
+input[type="date"]::-webkit-calendar-picker-indicator { opacity: 0.35; cursor: pointer; }
+
+.toggle-row { display: flex; gap: 8px; }
+.toggle-btn {
+  flex: 1; padding: 12px; border: 1px solid var(--border); border-radius: var(--r-md);
+  background: var(--surface); color: var(--text-soft);
+  font-size: 14px; font-family: 'DM Sans', sans-serif; font-weight: 500; cursor: pointer; transition: all 0.15s;
+}
+.toggle-btn.active { background: var(--pink-light); border-color: var(--pink); color: var(--pink); }
+.addr-wrap { display: none; margin-top: 10px; }
+.addr-wrap.show { display: block; }
+
+.prod-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--r-lg); margin-bottom: 8px; overflow: hidden;
+}
+.prod-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 16px; cursor: pointer; user-select: none; transition: background 0.15s;
+}
+.prod-header:hover { background: var(--bg); }
+.prod-header.open { background: var(--pink-light); border-bottom: 1px solid var(--pink-mid); }
+.prod-name { font-size: 14px; font-weight: 500; color: var(--text); }
+.prod-header.open .prod-name { color: var(--pink); }
+.prod-badge {
+  display: none; font-size: 10px; background: var(--pink); color: white;
+  padding: 2px 7px; border-radius: 99px; margin-left: 7px; font-weight: 600;
+}
+.prod-badge.show { display: inline-block; }
+.prod-arrow { font-size: 10px; color: var(--text-hint); transition: transform 0.2s; flex-shrink: 0; }
+.prod-header.open .prod-arrow { transform: rotate(180deg); }
+.prod-body { display: none; padding: 14px 16px; }
+.prod-body.open { display: block; }
+
+.size-pills { display: flex; gap: 7px; flex-wrap: wrap; }
+.size-pill {
+  padding: 7px 14px; border-radius: 99px; border: 1px solid var(--border);
+  font-size: 13px; font-family: 'DM Sans', sans-serif;
+  cursor: pointer; background: var(--bg); color: var(--text-soft); font-weight: 500; transition: all 0.15s;
+}
+.size-pill.active { background: var(--pink); border-color: var(--pink); color: white; }
+.size-pill:hover:not(.active) { border-color: var(--pink-mid); color: var(--pink); }
+
+.opt-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 0; border-top: 1px solid var(--bg);
+}
+.opt-row:first-of-type { border-top: none; padding-top: 4px; }
+.opt-label { font-size: 13px; color: var(--text); }
+.opt-price { font-size: 12px; color: var(--text-hint); margin-top: 1px; }
+
+.qty-ctrl { display: flex; align-items: center; gap: 10px; }
+.qty-btn {
+  width: 30px; height: 30px; border-radius: 50%;
+  border: 1px solid var(--border); background: var(--bg);
+  cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center;
+  color: var(--text-soft); font-family: 'DM Sans', sans-serif; transition: all 0.12s; flex-shrink: 0;
+}
+.qty-btn:hover { border-color: var(--pink); color: var(--pink); background: var(--pink-light); }
+.qty-btn:active { transform: scale(0.9); }
+.qty-num { font-size: 15px; font-weight: 600; min-width: 20px; text-align: center; color: var(--text); }
+
+.mix-wrap { margin-top: 12px; display: none; }
+.mix-wrap.show { display: block; }
+.mix-hint { font-size: 12px; color: var(--text-hint); margin-bottom: 8px; font-style: italic; }
+
+.sisa-badge { margin-top: 10px; padding: 8px 12px; border-radius: var(--r-sm); font-size: 12px; display: none; font-weight: 500; }
+.sisa-badge.show { display: block; }
+.sisa-badge.ok { background: var(--green-bg); color: var(--green-text); }
+.sisa-badge.warn { background: var(--yellow-bg); color: var(--yellow-text); }
+
+.single-rasa { margin-top: 10px; display: none; flex-direction: column; gap: 6px; }
+.single-rasa.show { display: flex; }
+.rasa-opt {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 12px; border: 1px solid var(--border); border-radius: var(--r-md);
+  cursor: pointer; transition: all 0.15s; font-size: 14px; color: var(--text);
+}
+.rasa-opt:hover { border-color: var(--pink-mid); background: var(--bg); }
+.rasa-opt.active { border-color: var(--pink); background: var(--pink-light); color: var(--pink); font-weight: 500; }
+.radio-dot {
+  width: 17px; height: 17px; border-radius: 50%;
+  border: 1.5px solid var(--border);
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.15s;
+}
+.radio-dot.on { background: var(--pink); border-color: var(--pink); }
+.radio-dot.on::after { content:''; width:6px; height:6px; background:white; border-radius:50%; display:block; }
+
+.summary-box {
+  background: var(--pink-light); border: 1px solid var(--pink-mid);
+  border-radius: var(--r-lg); padding: 16px; margin-top: 1.5rem; display: none;
+}
+.summary-box.show { display: block; }
+.summary-title { font-size: 11px; font-weight: 600; color: var(--pink); margin-bottom: 10px; letter-spacing: 0.08em; text-transform: uppercase; }
+.sum-row { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; font-size: 13px; padding: 4px 0; color: var(--text); line-height: 1.4; }
+.sum-row span:first-child { flex: 1; color: var(--text-soft); }
+.sum-row span:last-child { font-weight: 500; white-space: nowrap; }
+.sum-divider { height: 1px; background: var(--pink-mid); margin: 8px 0; }
+.sum-total { display: flex; justify-content: space-between; font-size: 15px; font-weight: 600; color: var(--pink); }
+
+.submit-btn {
+  width: 100%; padding: 15px; background: var(--pink); color: white; border: none;
+  border-radius: var(--r-lg); font-size: 15px; font-weight: 600;
+  font-family: 'DM Sans', sans-serif; cursor: pointer; margin-top: 1.5rem; transition: background 0.15s, transform 0.1s;
+}
+.submit-btn:hover { background: var(--pink-dark); }
+.submit-btn:active { transform: scale(0.99); }
+.submit-btn:disabled { opacity: 0.55; cursor: not-allowed; }
+
+.toast {
+  position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%);
+  background: #3D2030; color: white; padding: 13px 22px;
+  border-radius: var(--r-md); font-size: 14px; font-family: 'DM Sans', sans-serif;
+  display: none; z-index: 999; text-align: center; min-width: 260px; max-width: 340px;
+}
+.toast.show { display: block; }
+.toast.success { background: #2E7D32; }
+.toast.error { background: #B71C1C; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="header">
+    <div class="logo">Tasty Yummy Bakery</div>
+    <div class="tagline">Fresh baked with love &nbsp;✦&nbsp; Form Pemesanan</div>
+  </div>
+
+  <div class="sec-label">Info Pemesan</div>
+  <div class="field"><label>Nama lengkap</label><input type="text" id="nama" placeholder="Nama kamu"></div>
+  <div class="field"><label>Nomor WhatsApp</label><input type="tel" id="nohp" placeholder="08xxxxxxxxxx"></div>
+
+  <div class="sec-label">Pengiriman</div>
+  <div class="toggle-row">
+    <button class="toggle-btn active" id="btn-kirim" onclick="setDelivery('kirim')">Dikirim</button>
+    <button class="toggle-btn" id="btn-ambil" onclick="setDelivery('ambil')">Ambil sendiri</button>
+  </div>
+  <div class="addr-wrap show" id="addr-wrap">
+    <div class="field"><label>Alamat lengkap pengiriman</label><textarea id="alamat" placeholder="Jl. ..., RT/RW, Kelurahan, Kecamatan, Kota"></textarea></div>
+  </div>
+  <div class="field" style="margin-top:10px;"><label>Tanggal pengiriman / pengambilan</label><input type="date" id="tanggal"></div>
+
+  <div class="sec-label">Pilih Produk</div>
+  <div id="products"></div>
+
+  <div class="summary-box" id="summary">
+    <div class="summary-title">Ringkasan Pesanan</div>
+    <div id="sum-items"></div>
+    <div class="sum-divider"></div>
+    <div class="sum-total"><span>Total</span><span id="sum-total">Rp 0</span></div>
+  </div>
+
+  <div class="field" style="margin-top:1.5rem;"><label>Catatan tambahan (opsional)</label><textarea id="catatan" placeholder="Misal: jangan terlalu manis, ada alergi, dll"></textarea></div>
+  <button class="submit-btn" id="submit-btn" onclick="handleSubmit()">Kirim Pesanan</button>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyDeBmst0YqrI7pEVx408XnJIs_KiKq5zfD8Zn-QdgLcHRdkjvxGc-lBHzBe4c0Mk5x/exec';
+
+const catalog = [
+  { id:'bolen', name:'Bolen Pisang', type:'bolen' },
+  { id:'marble', name:'Marble Cake (full wijsman butter)', type:'size', opts:[
+    {label:'1 loyang 24×24',price:175000},{label:'½ loyang',price:95000},{label:'Slice',price:15000}
+  ]},
+  { id:'chochoban', name:'Chochoban', type:'qty', price:60000 },
+  { id:'bmc', name:'Banana Milk Crispy', type:'qty', price:35000 },
+  { id:'brownies', name:'Brownies', type:'size', opts:[
+    {label:'20×20',price:100000},{label:'20×10',price:55000},{label:'Cup',price:15000}
+  ]},
+  { id:'browniesparty', name:'Brownies Party Bulat', type:'qty', price:110000 },
+  { id:'rotisisir', name:'Roti Sisir', type:'multi', opts:[
+    {label:'Nutella',price:8500},{label:'Matcha',price:8500},{label:'Meses',price:6000},
+    {label:'Keju',price:6500},{label:'Butter Gula',price:5500},{label:'Oreo',price:6000},
+    {label:'Strawberry',price:6000},{label:'Beef Mayo',price:6500}
+  ]},
+  { id:'flossroll', name:'Flossroll Abon Sapi', type:'size', opts:[
+    {label:'Spicy 8 pcs',price:55000},{label:'Spicy 4 pcs',price:30000},
+    {label:'Original 8 pcs',price:55000},{label:'Original 4 pcs',price:30000}
+  ]},
+  { id:'bananabread', name:'Banana Bread', type:'size', opts:[
+    {label:'Chocho Callebaut 20×10',price:75000},{label:'Original 20×10',price:55000}
+  ]},
+];
+
+const state = {
+  bolen: { mode:null, paketMix:{cokju:0,coklat:0,keju:0}, satuanQty:0, satuanMix:{cokju:0,coklat:0,keju:0}, satuanSingle:'' }
+};
+catalog.filter(p=>p.type==='size'||p.type==='multi').forEach(p=>{ state[p.id]={}; p.opts.forEach((_,i)=>{state[p.id][i]=0;}); });
+catalog.filter(p=>p.type==='qty').forEach(p=>{state[p.id]=0;});
+let deliveryMode='kirim', grandTotal=0;
+
+function fmt(n){return 'Rp '+n.toLocaleString('id-ID');}
+
+function renderProducts(){
+  document.getElementById('products').innerHTML = catalog.map(p=>{
+    let body='';
+    if(p.type==='bolen'){
+      body=`
+        <div style="margin-bottom:12px;">
+          <div class="mix-hint" style="margin-bottom:8px;font-style:normal;">Pilih jenis pembelian</div>
+          <div class="size-pills">
+            <div class="size-pill" onclick="bolenMode('paket8',this)">Paket 8 pcs — ${fmt(37000)}</div>
+            <div class="size-pill" onclick="bolenMode('paket6',this)">Paket 6 pcs — ${fmt(30000)}</div>
+            <div class="size-pill" onclick="bolenMode('satuan',this)">Per pcs — ${fmt(6000)}/pcs</div>
+          </div>
+        </div>
+        <div class="mix-wrap" id="bolen-paket-wrap">
+          <div class="mix-hint">Komposisi rasa (opsional — sisa = terserah)</div>
+          ${['cokju:Coklat Keju','coklat:Coklat','keju:Keju'].map(r=>{
+            const[k,l]=r.split(':');
+            return `<div class="opt-row"><div class="opt-label">${l}</div>
+              <div class="qty-ctrl">
+                <button class="qty-btn" onclick="bPaketMix('${k}',-1)">−</button>
+                <div class="qty-num" id="bpm-${k}">0</div>
+                <button class="qty-btn" onclick="bPaketMix('${k}',1)">+</button>
+              </div></div>`;
+          }).join('')}
+          <div class="sisa-badge" id="bolen-paket-badge"></div>
+        </div>
+        <div class="mix-wrap" id="bolen-satuan-wrap">
+          <div class="opt-row" style="padding-top:0;">
+            <div><div class="opt-label">Jumlah pcs</div><div class="opt-price">${fmt(6000)}/pcs</div></div>
+            <div class="qty-ctrl">
+              <button class="qty-btn" onclick="bSatuanQty(-1)">−</button>
+              <div class="qty-num" id="bolen-satuan-qty">0</div>
+              <button class="qty-btn" onclick="bSatuanQty(1)">+</button>
+            </div>
+          </div>
+          <div id="bolen-satuan-rasa" style="display:none;margin-top:4px;"></div>
+        </div>`;
+    } else if(p.type==='qty'){
+      body=`<div class="opt-row" style="padding-top:0;">
+        <div><div class="opt-label">${p.name}</div><div class="opt-price">${fmt(p.price)}</div></div>
+        <div class="qty-ctrl">
+          <button class="qty-btn" onclick="changeQty('${p.id}',-1)">−</button>
+          <div class="qty-num" id="q-${p.id}">0</div>
+          <button class="qty-btn" onclick="changeQty('${p.id}',1)">+</button>
+        </div></div>`;
+    } else {
+      body=p.opts.map((o,i)=>`
+        <div class="opt-row" ${i===0?'style="padding-top:0;"':''}>
+          <div><div class="opt-label">${o.label}</div><div class="opt-price">${fmt(o.price)}</div></div>
+          <div class="qty-ctrl">
+            <button class="qty-btn" onclick="changeSize('${p.id}',${i},-1)">−</button>
+            <div class="qty-num" id="q-${p.id}-${i}">0</div>
+            <button class="qty-btn" onclick="changeSize('${p.id}',${i},1)">+</button>
+          </div></div>`).join('');
+    }
+    return `<div class="prod-card">
+      <div class="prod-header" id="hdr-${p.id}" onclick="toggleCard('${p.id}')">
+        <div style="display:flex;align-items:center;">
+          <div class="prod-name">${p.name}</div>
+          <span class="prod-badge" id="badge-${p.id}">✓</span>
+        </div>
+        <div class="prod-arrow">▼</div>
+      </div>
+      <div class="prod-body" id="body-${p.id}">${body}</div>
+    </div>`;
+  }).join('');
+}
+
+function toggleCard(id){
+  document.getElementById('hdr-'+id).classList.toggle('open');
+  document.getElementById('body-'+id).classList.toggle('open');
+}
+
+let bolenPill=null;
+function bolenMode(mode,el){
+  state.bolen={mode,paketMix:{cokju:0,coklat:0,keju:0},satuanQty:0,satuanMix:{cokju:0,coklat:0,keju:0},satuanSingle:''};
+  ['bpm-cokju','bpm-coklat','bpm-keju'].forEach(id=>{const e=document.getElementById(id);if(e)e.textContent='0';});
+  document.getElementById('bolen-satuan-qty').textContent='0';
+  document.getElementById('bolen-satuan-rasa').style.display='none';
+  document.getElementById('bolen-satuan-rasa').innerHTML='';
+  const pb=document.getElementById('bolen-paket-badge'); if(pb) pb.classList.remove('show');
+  if(bolenPill) bolenPill.classList.remove('active');
+  el.classList.add('active'); bolenPill=el;
+  document.getElementById('bolen-paket-wrap').classList.toggle('show',mode==='paket8'||mode==='paket6');
+  document.getElementById('bolen-satuan-wrap').classList.toggle('show',mode==='satuan');
+  updateSummary();
+}
+
+function bPaketMix(key,delta){
+  const m=state.bolen.paketMix;
+  const max=state.bolen.mode==='paket8'?8:6;
+  if(delta>0&&(m.cokju+m.coklat+m.keju)>=max)return;
+  m[key]=Math.max(0,m[key]+delta);
+  document.getElementById('bpm-'+key).textContent=m[key];
+  const filled=m.cokju+m.coklat+m.keju, sisa=max-filled;
+  const badge=document.getElementById('bolen-paket-badge');
+  if(filled===0){badge.classList.remove('show');}
+  else if(sisa===0){badge.className='sisa-badge show ok';badge.textContent='Komposisi lengkap!';}
+  else{badge.className='sisa-badge show warn';badge.textContent=sisa+' pcs sisanya kami buat sesuai selera.';}
+  updateSummary();
+}
+
+function bSatuanQty(delta){
+  state.bolen.satuanQty=Math.max(0,state.bolen.satuanQty+delta);
+  state.bolen.satuanMix={cokju:0,coklat:0,keju:0};
+  state.bolen.satuanSingle='';
+  document.getElementById('bolen-satuan-qty').textContent=state.bolen.satuanQty;
+  const rasaWrap=document.getElementById('bolen-satuan-rasa');
+  const q=state.bolen.satuanQty;
+  if(q===0){rasaWrap.style.display='none';rasaWrap.innerHTML='';}
+  else{rasaWrap.style.display='block';renderSatuanRasa(q);}
+  updateSummary();
+}
+
+function renderSatuanRasa(q){
+  const wrap=document.getElementById('bolen-satuan-rasa');
+  if(q===1){
+    wrap.innerHTML=`<div class="mix-hint">Pilih rasa</div>`+
+      ['Coklat Keju','Coklat','Keju'].map(r=>`
+        <div class="rasa-opt" onclick="bSatuanSingle('${r}',this)">
+          <div class="radio-dot"></div><div>${r}</div>
+        </div>`).join('');
+  } else {
+    wrap.innerHTML=`<div class="mix-hint">Komposisi rasa (opsional — sisa = terserah)</div>`+
+      ['cokju:Coklat Keju','coklat:Coklat','keju:Keju'].map(r=>{
+        const[k,l]=r.split(':');
+        return `<div class="opt-row" style="padding-top:0;"><div class="opt-label">${l}</div>
+          <div class="qty-ctrl">
+            <button class="qty-btn" onclick="bSatuanMix('${k}',-1)">−</button>
+            <div class="qty-num" id="bsm-${k}">0</div>
+            <button class="qty-btn" onclick="bSatuanMix('${k}',1)">+</button>
+          </div></div>`;
+      }).join('')+`<div class="sisa-badge" id="bolen-satuan-badge"></div>`;
+  }
+}
+
+function bSatuanSingle(rasa,el){
+  state.bolen.satuanSingle=rasa;
+  document.querySelectorAll('#bolen-satuan-rasa .rasa-opt').forEach(o=>o.classList.remove('active'));
+  document.querySelectorAll('#bolen-satuan-rasa .radio-dot').forEach(d=>d.classList.remove('on'));
+  el.classList.add('active');el.querySelector('.radio-dot').classList.add('on');
+  updateSummary();
+}
+
+function bSatuanMix(key,delta){
+  const m=state.bolen.satuanMix;
+  if(delta>0&&(m.cokju+m.coklat+m.keju)>=state.bolen.satuanQty)return;
+  m[key]=Math.max(0,m[key]+delta);
+  document.getElementById('bsm-'+key).textContent=m[key];
+  const filled=m.cokju+m.coklat+m.keju, sisa=state.bolen.satuanQty-filled;
+  const badge=document.getElementById('bolen-satuan-badge');
+  if(!badge)return;
+  if(filled===0){badge.classList.remove('show');}
+  else if(sisa===0){badge.className='sisa-badge show ok';badge.textContent='Komposisi lengkap!';}
+  else{badge.className='sisa-badge show warn';badge.textContent=sisa+' pcs sisanya kami buat sesuai selera.';}
+  updateSummary();
+}
+
+function changeQty(id,delta){state[id]=Math.max(0,state[id]+delta);document.getElementById('q-'+id).textContent=state[id];updateSummary();}
+function changeSize(id,idx,delta){state[id][idx]=Math.max(0,state[id][idx]+delta);document.getElementById('q-'+id+'-'+idx).textContent=state[id][idx];updateSummary();}
+
+function setDelivery(mode){
+  deliveryMode=mode;
+  document.getElementById('btn-kirim').classList.toggle('active',mode==='kirim');
+  document.getElementById('btn-ambil').classList.toggle('active',mode==='ambil');
+  document.getElementById('addr-wrap').classList.toggle('show',mode==='kirim');
+}
+
+function bolenItemData(){
+  const b=state.bolen;
+  if(!b.mode)return null;
+  if(b.mode==='paket8'||b.mode==='paket6'){
+    const size=b.mode==='paket8'?8:6, price=b.mode==='paket8'?37000:30000;
+    const m=b.paketMix, filled=m.cokju+m.coklat+m.keju, sisa=size-filled;
+    let parts=[];
+    if(m.cokju)parts.push(m.cokju+' Coklat Keju');
+    if(m.coklat)parts.push(m.coklat+' Coklat');
+    if(m.keju)parts.push(m.keju+' Keju');
+    if(sisa>0&&filled>0)parts.push(sisa+' terserah');
+    if(filled===0)parts.push('semua terserah');
+    return{label:`Bolen Pisang ${size}pcs paket (${parts.join(', ')})`,price};
+  }
+  if(b.mode==='satuan'&&b.satuanQty>0){
+    const price=b.satuanQty*6000;
+    let rasa='';
+    if(b.satuanQty===1){rasa=b.satuanSingle||'terserah';}
+    else{
+      const m=b.satuanMix,filled=m.cokju+m.coklat+m.keju,sisa=b.satuanQty-filled;
+      let parts=[];
+      if(m.cokju)parts.push(m.cokju+' Coklat Keju');
+      if(m.coklat)parts.push(m.coklat+' Coklat');
+      if(m.keju)parts.push(m.keju+' Keju');
+      if(sisa>0&&filled>0)parts.push(sisa+' terserah');
+      if(filled===0)parts.push('semua terserah');
+      rasa=parts.join(', ');
+    }
+    return{label:`Bolen Pisang ${b.satuanQty}pcs satuan (${rasa})`,price};
+  }
+  return null;
+}
+
+function updateSummary(){
+  let items=[]; grandTotal=0;
+  const bi=bolenItemData();
+  if(bi){items.push(bi);grandTotal+=bi.price;}
+  const bb=document.getElementById('badge-bolen');
+  if(bb)bb.classList.toggle('show',!!bi);
+
+  catalog.filter(p=>p.type==='qty').forEach(p=>{
+    const q=state[p.id];
+    if(q>0){items.push({label:`${p.name} ×${q}`,price:p.price*q});grandTotal+=p.price*q;}
+    const b=document.getElementById('badge-'+p.id);if(b)b.classList.toggle('show',q>0);
+  });
+  catalog.filter(p=>p.type==='size'||p.type==='multi').forEach(p=>{
+    let has=false;
+    p.opts.forEach((o,i)=>{const q=state[p.id][i];if(q>0){items.push({label:`${p.name} — ${o.label} ×${q}`,price:o.price*q});grandTotal+=o.price*q;has=true;}});
+    const b=document.getElementById('badge-'+p.id);if(b)b.classList.toggle('show',has);
+  });
+
+  const box=document.getElementById('summary');
+  if(items.length===0){box.classList.remove('show');return;}
+  box.classList.add('show');
+  document.getElementById('sum-items').innerHTML=items.map(it=>`<div class="sum-row"><span>${it.label}</span><span>${fmt(it.price)}</span></div>`).join('');
+  document.getElementById('sum-total').textContent=fmt(grandTotal);
+}
+
+function buildPesanan(){
+  const parts=[];
+  const bi=bolenItemData();if(bi)parts.push(bi.label);
+  catalog.filter(p=>p.type==='qty').forEach(p=>{if(state[p.id]>0)parts.push(`${p.name} ×${state[p.id]}`);});
+  catalog.filter(p=>p.type==='size'||p.type==='multi').forEach(p=>{p.opts.forEach((o,i)=>{if(state[p.id][i]>0)parts.push(`${p.name} ${o.label} ×${state[p.id][i]}`);});});
+  return parts.join(' | ');
+}
+
+function showToast(msg,type=''){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.className='toast show '+type;
+  setTimeout(()=>{t.className='toast';},3800);
+}
+
+async function handleSubmit(){
+  const nama=document.getElementById('nama').value.trim();
+  const nohp=document.getElementById('nohp').value.trim();
+  const tanggal=document.getElementById('tanggal').value;
+  const alamat=document.getElementById('alamat').value.trim();
+  const pesanan=buildPesanan();
+  if(!nama){showToast('Nama harus diisi ya kak!');return;}
+  if(!nohp){showToast('Nomor WhatsApp harus diisi!');return;}
+  if(!tanggal){showToast('Tanggal pengiriman harus diisi!');return;}
+  if(deliveryMode==='kirim'&&!alamat){showToast('Alamat pengiriman harus diisi!');return;}
+  if(!pesanan){showToast('Pilih produk dulu ya kak!');return;}
+
+  const btn=document.getElementById('submit-btn');
+  btn.disabled=true;btn.textContent='Mengirim pesanan...';
+
+  try{
+   await fetch(SCRIPT_URL,{
+      mode : "no-cors",
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        nama,
+        noHp:nohp,
+        tanggal,
+        delivery:deliveryMode==='kirim'?'Dikirim':'Ambil Sendiri',
+        alamat:deliveryMode==='kirim'?alamat:'-',
+        pesanan,
+        total:fmt(grandTotal),
+        catatan:document.getElementById('catatan').value.trim()
+      })
+    });
+
+    // 🔥 bikin text WA
+    const message = `
+    *🧁 Tasty Yummy Bakery Order*
+
+    Halo kak! Aku mau order ya 🤍
+
+    📅 Tanggal: ${tanggal}
+    🚚 Pengiriman: ${deliveryMode==='kirim'?'Dikirim':'Ambil Sendiri'}
+
+    📍 Alamat:
+    ${deliveryMode==='kirim'?alamat:'Ambil di toko'}
+
+    🛍️ Pesanan:
+    ${pesanan}
+
+    💰 Total:
+    ${fmt(grandTotal)}
+
+    📝 Catatan:
+    ${document.getElementById('catatan').value || '-'}
+
+    Terima kasih ✨
+    `;
+
+    // encode biar aman di URL
+    const encodedMsg = encodeURIComponent(message);
+
+    // nomor tujuan (punya kamu)
+    const phone = "6282227523636";
+
+    // redirect ke WA
+    window.open(`https://wa.me/${phone}?text=${encodedMsg}`, '_blank');
+
+    // optional: reset form
+    showToast('Pesanan dikirim & WhatsApp dibuka 💌','success');
+    setTimeout(()=>{location.reload();},3000);
+   
+  }catch(err){
+    showToast('Gagal mengirim. Coba lagi ya kak!','error');
+    btn.disabled=false;btn.textContent='Kirim Pesanan';
+  }
+}
+
+renderProducts();
+document.getElementById('tanggal').min=new Date().toISOString().split('T')[0];
+</script>
+</body>
+</html>
