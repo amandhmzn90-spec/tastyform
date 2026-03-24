@@ -534,7 +534,7 @@ async function fetchOngkir() {
   if (!alamat) return;
 
   try {
-    const res = await fetch('http://localhost:5000/ongkir', {
+    const res = await fetch('https://tasty-ongkir.vercel.app/ongkir', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ alamat })
